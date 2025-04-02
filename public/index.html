@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vietnamese Bank Card Promotions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    .search-container {
+      margin: 20px 0;
+    }
+    input {
+      padding: 8px;
+      width: 300px;
+    }
+    button {
+      padding: 8px 16px;
+      background: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .results {
+      margin-top: 20px;
+    }
+    .card {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+    .card h3 {
+      margin-top: 0;
+      color: #2980b9;
+    }
+    .card p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Vietnamese Bank Card Promotions</h1>
+  
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search for cards...">
+    <button onclick="searchCards()">Search</button>
+  </div>
+  
+  <div id="results" class="results"></div>
+  
+  <script>
+    async function searchCards() {
+      const query = document.getElementById('searchInput').value;
+      const response = await fetch(`/api/cards/search?q=${encodeURIComponent(query)}`);
+      const cards = await response.json();
+      
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '';
+      
+      if (cards.length === 0) {
+        resultsDiv.innerHTML = '<p>No cards found matching your search.</p>';
+        return;
+      }
+      
+      cards.forEach(card => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card';
+        
+        let html = `<h3>${card.Card || 'N/A'}</h3>`;
+        html += `<p><strong>Card Type:</strong> ${card['Card Type'] || 'N/A'}</p>`;
+        html += `<p><strong>Cashback Type:</strong> ${card['Loại hoàn tiền'] || 'N/A'}</p>`;
+        html += `<p><strong>Category:</strong> ${card['Thể loại'] || 'N/A'}</p>`;
+        html += `<p><strong>Cashback Percentage:</strong> ${card['Phần trăm'] || 'N/A'}</p>`;
+        html += `<p><strong>Max per Month:</strong> ${card['Max mỗi tháng'] || 'N/A'}</p>`;
+        
+        if (card.Note) {
+          html += `<p><strong>Note:</strong> ${card.Note}</p>`;
+        }
+        
+        cardDiv.innerHTML = html;
+        resultsDiv.appendChild(cardDiv);
+      });
+    }
+  </script>
+</body>
+</html>
