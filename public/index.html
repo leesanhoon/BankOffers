@@ -6,44 +6,135 @@
   <title>Vietnamese Bank Card Promotions</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       max-width: 1200px;
       margin: 0 auto;
       padding: 20px;
       line-height: 1.6;
+      background-color: #f5f7fa;
+      color: #333;
     }
+    
     h1 {
       color: #2c3e50;
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 600;
     }
+    
     .search-container {
+      display: flex;
+      gap: 10px;
       margin: 20px 0;
+      justify-content: center;
     }
-    input {
-      padding: 8px;
-      width: 300px;
+    
+    #searchInput {
+      padding: 10px 15px;
+      width: 400px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
     }
+    
     button {
-      padding: 8px 16px;
+      padding: 10px 20px;
       background: #3498db;
       color: white;
       border: none;
+      border-radius: 4px;
       cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
     }
+    
+    button:hover {
+      background: #2980b9;
+    }
+    
     .results {
-      margin-top: 20px;
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
     }
+    
     .card {
-      border: 1px solid #ddd;
-      padding: 15px;
-      margin-bottom: 10px;
-      border-radius: 5px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
     }
-    .card h3 {
-      margin-top: 0;
-      color: #2980b9;
+    
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
-    .card p {
-      margin: 5px 0;
+    
+    .card-header {
+      border-bottom: 1px solid #eee;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+    }
+    
+    .card-header h3 {
+      margin: 0;
+      color: #2c3e50;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .card-details {
+      font-size: 14px;
+    }
+    
+    .card-details p {
+      margin: 8px 0;
+      line-height: 1.5;
+      display: flex;
+    }
+    
+    .card-details strong {
+      color: #3498db;
+      min-width: 150px;
+      display: inline-block;
+      font-weight: 500;
+    }
+    
+    .card-details span {
+      flex: 1;
+    }
+    
+    .no-results {
+      text-align: center;
+      color: #7f8c8d;
+      font-style: italic;
+      grid-column: 1 / -1;
+    }
+    
+    @media (max-width: 768px) {
+      .search-container {
+        flex-direction: column;
+      }
+      
+      #searchInput {
+        width: 100%;
+      }
+      
+      .results {
+        grid-template-columns: 1fr;
+      }
+      
+      .card-details p {
+        flex-direction: column;
+      }
+      
+      .card-details strong {
+        min-width: auto;
+        margin-bottom: 2px;
+      }
     }
   </style>
 </head>
@@ -51,59 +142,69 @@
   <h1>Vietnamese Bank Card Promotions</h1>
   
   <div class="search-container">
-    <input type="text" id="searchInput" placeholder="Search for cards..." onkeyup="handleKeyUp(event)">
+    <input type="text" id="searchInput" placeholder="Search for cards by name, bank, category, MCC...">
     <button onclick="searchCards()">Search</button>
   </div>
   
   <div id="results" class="results"></div>
   
   <script>
-    let typingTimer;
-    const typingDelay = 100; // 1 second delay
-
-    function handleKeyUp(event) {
-      clearTimeout(typingTimer);
-      if (event.key === 'Enter') {
-        searchCards();
-      } else {
-        typingTimer = setTimeout(searchCards, typingDelay);
-      }
-    }
-  </script>
-  
-  <script>
     async function searchCards() {
-      const query = document.getElementById('searchInput').value;
-      const response = await fetch(`/api/cards/search?q=${encodeURIComponent(query)}`);
-      const cards = await response.json();
-      
-      const resultsDiv = document.getElementById('results');
-      resultsDiv.innerHTML = '';
-      
-      if (cards.length === 0) {
-        resultsDiv.innerHTML = '<p>No cards found matching your search.</p>';
+      const query = document.getElementById('searchInput').value.trim();
+      if (!query) {
+        alert('Please enter a search term');
         return;
       }
       
-      cards.forEach(card => {
-        const cardDiv = document.createElement('div');
-        cardDiv.className = 'card';
+      try {
+        const response = await fetch(`/api/cards/search?q=${encodeURIComponent(query)}`);
+        const cards = await response.json();
         
-        let html = `<h3>${card.Card || 'N/A'}</h3>`;
-        html += `<p><strong>Card Type:</strong> ${card['Card Type'] || 'N/A'}</p>`;
-        html += `<p><strong>Cashback Type:</strong> ${card['Loại hoàn tiền'] || 'N/A'}</p>`;
-        html += `<p><strong>Category:</strong> ${card['Thể loại'] || 'N/A'}</p>`;
-        html += `<p><strong>Cashback Percentage:</strong> ${card['Phần trăm'] || 'N/A'}</p>`;
-        html += `<p><strong>Max per Month:</strong> ${card['Max mỗi tháng'] || 'N/A'}</p>`;
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = '';
         
-        if (card.Note) {
-          html += `<p><strong>Note:</strong> ${card.Note}</p>`;
+        if (cards.length === 0) {
+          resultsDiv.innerHTML = '<div class="no-results">No cards found matching your search.</div>';
+          return;
         }
         
-        cardDiv.innerHTML = html;
-        resultsDiv.appendChild(cardDiv);
-      });
+        cards.forEach(card => {
+          const cardDiv = document.createElement('div');
+          cardDiv.className = 'card';
+          
+          let html = `<div class="card-header"><h3>${card.Card || 'N/A'}</h3></div>`;
+          html += `<div class="card-details">`;
+          
+          // Hiển thị tất cả các trường dữ liệu
+          Object.keys(card).forEach(key => {
+            // Bỏ qua trường Card vì đã hiển thị ở tiêu đề
+            if (key !== 'Card' && card[key]) {
+              // Format lại tên trường cho đẹp hơn
+              const formattedKey = key
+                .replace(/([A-Z])/g, ' $1')
+                .replace(/^./, str => str.toUpperCase());
+              
+              html += `<p><strong>${formattedKey}:</strong> <span>${card[key]}</span></p>`;
+            }
+          });
+          
+          html += `</div>`;
+          cardDiv.innerHTML = html;
+          resultsDiv.appendChild(cardDiv);
+        });
+      } catch (error) {
+        console.error('Error searching cards:', error);
+        document.getElementById('results').innerHTML = 
+          '<div class="no-results">Error loading data. Please try again later.</div>';
+      }
     }
+    
+    // Search when Enter key is pressed
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        searchCards();
+      }
+    });
   </script>
 </body>
 </html>
