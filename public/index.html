@@ -51,11 +51,25 @@
   <h1>Vietnamese Bank Card Promotions</h1>
   
   <div class="search-container">
-    <input type="text" id="searchInput" placeholder="Search for cards...">
+    <input type="text" id="searchInput" placeholder="Search for cards..." onkeyup="handleKeyUp(event)">
     <button onclick="searchCards()">Search</button>
   </div>
   
   <div id="results" class="results"></div>
+  
+  <script>
+    let typingTimer;
+    const typingDelay = 1000; // 1 second delay
+
+    function handleKeyUp(event) {
+      clearTimeout(typingTimer);
+      if (event.key === 'Enter') {
+        searchCards();
+      } else {
+        typingTimer = setTimeout(searchCards, typingDelay);
+      }
+    }
+  </script>
   
   <script>
     async function searchCards() {
